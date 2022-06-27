@@ -21,27 +21,26 @@ function App() {
   // ];
 
   // Send a GET request when the button is clicked
-  const fetchMoviesHandler = () => {
+  async function fetchMoviesHandler() {
     // fetch("https://api-stg.jam-community.com/song/trending")
-    fetch("https://swapi.dev/films/")
-      // fetch("https://swapi.py4e.com/")
-      .then((response) => {
-        console.log(response.json());
-        return response.json();
-      })
-      .then((data) => {
-        const transformedMovies = data.results.map((movieData) => {
-          return {
-            id: movieData.episode_id,
-            title: movieData.title,
-            openingText: movieData.opening_crawl,
-            releaseDate: movieData.release_date,
-          };
-        });
-        console.log(data.results);
-        setMovies(transformedMovies);
-      });
-  };
+    // fetch("https://swapi.py4e.com/")
+    const response = await fetch("https://swapi.dev/api/films/");
+    // console.log("JSON Obj:", response.json());
+
+    const data = await response.json();
+    console.log("Data:", data);
+
+    const transformedMovies = data.results.map((movieData) => {
+      return {
+        id: movieData.episode_id,
+        title: movieData.title,
+        openingText: movieData.opening_crawl,
+        releaseDate: movieData.release_date,
+      };
+    });
+    console.log(data.results);
+    setMovies(transformedMovies);
+  }
 
   return (
     <React.Fragment>
