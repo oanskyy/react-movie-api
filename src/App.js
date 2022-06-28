@@ -5,41 +5,36 @@ import "./App.css";
 
 function App() {
   const [movies, setMovies] = useState([]);
-  // const dummyMovies = [
-  //   {
-  //     id: 1,
-  //     title: "Some Dummy Movie",
-  //     openingText: "This is the opening text of the movie",
-  //     releaseDate: "2021-05-18",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Some Dummy Movie 2",
-  //     openingText: "This is the second opening text of the movie",
-  //     releaseDate: "2021-05-19",
-  //   },
-  // ];
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Send a GET request when the button is clicked
   async function fetchMoviesHandler() {
-    // fetch("https://api-stg.jam-community.com/song/trending")
-    // fetch("https://swapi.py4e.com/")
-    const response = await fetch("https://swapi.dev/api/films/");
-    // console.log("JSON Obj:", response.json());
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("https://swapi.dev/api/films/");
+      const data = await response.json();
+      console.log("Data:", data);
 
-    const data = await response.json();
-    console.log("Data:", data);
+      if (!response.ok) {
+        throw new Error("somethings off");
+      }
 
-    const transformedMovies = data.results.map((movieData) => {
-      return {
-        id: movieData.episode_id,
-        title: movieData.title,
-        openingText: movieData.opening_crawl,
-        releaseDate: movieData.release_date,
-      };
-    });
-    console.log(data.results);
-    setMovies(transformedMovies);
+      const transformedMovies = data.results.map((movieData) => {
+        return {
+          id: movieData.episode_id,
+          title: movieData.title,
+          openingText: movieData.opening_crawl,
+          releaseDate: movieData.release_date,
+        };
+      });
+      console.log("data.results", data.results);
+      setMovies(transformedMovies);
+    } catch (error) {
+      setError(error.message);
+    }
+    setIsLoading(false);
   }
 
   return (
@@ -48,7 +43,10 @@ function App() {
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
       <section>
-        <MoviesList movies={movies} />
+        {!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
+        {!isLoading && movies.length === 0 && !error && <p>Found no movies.</p>}
+        {!isLoading && error && <p>{error.message}</p>}
+        {isLoading && <p>Loading...</p>}
       </section>
     </React.Fragment>
   );
